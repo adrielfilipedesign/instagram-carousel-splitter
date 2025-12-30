@@ -52,7 +52,7 @@ docker build -t instagram-splitter .
 
 Run container:
 ```bash
-docker run -d --name instagram-splitter --restart=unless-stopped -p 3100:3100 instagram-splitter
+docker run -d --name instagram-splitter --restart=always -p 3100:3100 instagram-splitter
 ```
 
 ## 💻 Usage

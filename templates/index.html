@@ -13,30 +13,59 @@
         <h1>Instagram Carousel Splitter</h1>
         <p class="subtitle">Auto split your instagram carrousel</p>
 
-        <div class="drop-zone" id="dropZone">
-            <div class="drop-zone-icon">📁</div>
-            <div class="drop-zone-text">Drop your image here</div>
-            <div class="drop-zone-hint">or</div>
-            <button class="select-btn" onclick="document.getElementById('fileInput').click()">
-                Select image
-            </button>
+        <!-- Tabs para alternar entre modo único e lote -->
+        <div class="tabs">
+            <button class="tab active" data-tab="single">Single Image</button>
+            <button class="tab" data-tab="batch">Batch Mode</button>
         </div>
 
-        <input type="file" id="fileInput" class="file-input" accept="image/*">
-
-        <div class="preview" id="preview">
-            <img id="previewImage" class="preview-image" alt="Preview">
-            <div class="file-info">
-                <p><strong>Filename:</strong> <span id="fileName"></span></p>
-                <p><strong>Size:</strong> <span id="dimensions"></span></p>
-                <p><strong>Number of pages:</strong> <span id="parts"></span></p>
+        <!-- Conteúdo: Single Image -->
+        <div id="single" class="tab-content active">
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-icon">📁</div>
+                <div class="drop-zone-text">Drop your image here</div>
+                <div class="drop-zone-hint">or</div>
+                <button class="select-btn" onclick="document.getElementById('fileInput').click()">
+                    Select image
+                </button>
             </div>
-            <button class="process-btn" id="processBtn">Process and Download</button>
+
+            <input type="file" id="fileInput" class="file-input" accept="image/*">
+
+            <div class="preview" id="preview">
+                <img id="previewImage" class="preview-image" alt="Preview">
+                <div class="file-info">
+                    <p><strong>Filename:</strong> <span id="fileName"></span></p>
+                    <p><strong>Size:</strong> <span id="dimensions"></span></p>
+                    <p><strong>Number of pages:</strong> <span id="parts"></span></p>
+                </div>
+                <button class="process-btn" id="processBtn">Process and Download</button>
+            </div>
+        </div>
+
+        <!-- Conteúdo: Batch Mode -->
+        <div id="batch" class="tab-content">
+            <div class="drop-zone" id="dropZoneBatch">
+                <div class="drop-zone-icon">📁</div>
+                <div class="drop-zone-text">Drop multiple images here</div>
+                <div class="drop-zone-hint">or</div>
+                <button class="select-btn" onclick="document.getElementById('fileInputBatch').click()">
+                    Select images
+                </button>
+            </div>
+
+            <input type="file" id="fileInputBatch" class="file-input" accept="image/*" multiple>
+
+            <div class="file-list" id="fileList"></div>
+
+            <button class="process-btn batch-process-btn" id="processBatchBtn" style="display: none;">
+                Process All (<span id="fileCount">0</span> images)
+            </button>
         </div>
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p>Processing yout image...</p>
+            <p>Processing your image<span id="loadingPlural"></span>...</p>
         </div>
 
         <div class="error" id="error"></div>
