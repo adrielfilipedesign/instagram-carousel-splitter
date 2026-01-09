@@ -43,7 +43,7 @@ def split_single_image(img, original_filename):
     return parts, num_parts
 
 def split_image(image_file):
-    """Função original para compatibilidade (uma imagem apenas)"""
+    """Original function (for single image)"""
     img = Image.open(image_file)
     filename = secure_filename(image_file.filename) if hasattr(image_file, 'filename') else 'image'
     
@@ -58,7 +58,7 @@ def split_image(image_file):
     return zip_buffer, num_parts
 
 def split_multiple_images(image_files):
-    """Processa múltiplas imagens em lote"""
+    """Batch images"""
     zip_buffer = io.BytesIO()
     total_parts = 0
     processed_images = 0
@@ -70,14 +70,14 @@ def split_multiple_images(image_files):
                     img = Image.open(file)
                     original_filename = secure_filename(file.filename)
                     
-                    # Nome da pasta: nome do arquivo sem extensão
+                    # folder name, file without extension
                     folder_name = os.path.splitext(original_filename)[0]
                     
                     parts, num_parts = split_single_image(img, original_filename)
                     
-                    # Adicionar cada parte dentro da pasta do carrossel
+                    # add all parts in folder
                     for filename, data in parts:
-                        # Caminho completo: pasta/arquivo
+                        # folder url complete
                         file_path = f"{folder_name}/{filename}"
                         zip_file.writestr(file_path, data)
                     
@@ -97,61 +97,66 @@ def index():
 
 @app.route('/split', methods=['POST'])
 def split():
-    """Endpoint para processar uma única imagem"""
+    """Endpoint for process single image"""
     if 'image' not in request.files:
-        return jsonify({'error': 'Imagem não enviada'}), 400
+        return jsonify({'error': 'Image not send'}), 400
     
     file = request.files['image']
     
     if file.filename == '':
-        return jsonify({'error': 'Imagem não selecionada'}), 400
+        return jsonify({'error': 'Image not selected'}), 400
     
     if not allowed_file(file.filename):
-        return jsonify({'error': 'Formato de imagem não suportado'}), 400
+        return jsonify({'error': 'Format not supported'}), 400
     
     try:
         zip_buffer, num_parts = split_image(file)
+        
+        # Nome do arquivo sem a extensão original + '-splited.zip'
+        download_filename = secure_filename(file.filename.rsplit('.', 1)[0] + '-splited.zip')
         
         return send_file(
             zip_buffer,
             mimetype='application/zip',
             as_attachment=True,
-            download_name=file.filename.rsplit('.', 1)[0] + '-splited.zip'
+            download_name=download_filename
         )
     except Exception as e:
-        return jsonify({'error': f'Erro ao processar a imagem: {str(e)}'}), 500
+        return jsonify({'error': f'Error when process image: {str(e)}'}), 500
 
 @app.route('/split-batch', methods=['POST'])
 def split_batch():
-    """Endpoint para processar múltiplas imagens em lote"""
+    """Endpoint for process batch images"""
     if 'images' not in request.files:
-        return jsonify({'error': 'Nenhuma imagem enviada'}), 400
+        return jsonify({'error': 'Image not selected'}), 400
     
     files = request.files.getlist('images')
     
     if not files or len(files) == 0:
-        return jsonify({'error': 'Nenhuma imagem selecionada'}), 400
+        return jsonify({'error': 'Image not selected'}), 400
     
-    # Validar se há pelo menos uma imagem válida
+    # Valid if have image
     valid_files = [f for f in files if f and allowed_file(f.filename)]
     
     if len(valid_files) == 0:
-        return jsonify({'error': 'Nenhuma imagem com formato válido encontrada'}), 400
+        return jsonify({'error': 'Invalid image extension'}), 400
     
     try:
         zip_buffer, processed_images, total_parts = split_multiple_images(files)
         
         if processed_images == 0:
-            return jsonify({'error': 'Nenhuma imagem pôde ser processada'}), 500
+            return jsonify({'error': 'Not image can be process'}), 500
+        
+        download_filename = secure_filename(f'carrosseis-splited-{processed_images}imgs-{total_parts}parts.zip')
         
         return send_file(
             zip_buffer,
             mimetype='application/zip',
             as_attachment=True,
-            download_name=f'carrosseis-splited-{processed_images}imgs-{total_parts}parts.zip'
+            download_name=download_filename
         )
     except Exception as e:
-        return jsonify({'error': f'Erro ao processar as imagens: {str(e)}'}), 500
+        return jsonify({'error': f'Error when process image: {str(e)}'}), 500
 
 if __name__ == '__main__':
 

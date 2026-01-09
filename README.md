@@ -40,7 +40,7 @@ venv\Scripts\activate  # On Windows
 
 3. Install dependencies:
 ```bash
-pip install flask pillow
+pip install -r requirements.txt
 ```
 
 ## Docker setup
